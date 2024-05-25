@@ -5,6 +5,7 @@ import { Map, config, MapStyle } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { RadarLayer } from '@maptiler/weather';
 import Wrapper from '../../shared/Wrapper';
+import Image from 'next/image';
 
 const Weather = () => {
     const mapContainerRef = useRef(null);
@@ -20,6 +21,8 @@ const Weather = () => {
             style: MapStyle.BRIGHT.DARK, // Use a different style for better visibility
             center: [10.0, 29.0], // Centering on North Africa
             zoom: 4,
+            scrollZoom: false,
+
         });
 
 
@@ -56,6 +59,30 @@ const Weather = () => {
                     style={{ width: '100%', height: '600px', borderRadius: '15px' }}
                 />
             </div>
+            <div className='flex items-center justify-center flex-col mt-10'>
+                <h1 className='text-5xl font-bold '>Other Locations </h1>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full mt-5 mb-10 justify-items-center'>
+                <div className='mt-5 p-4 shadow-lg rounded-lg'>
+                    <Image src={"/morocco.png"} width={120} height={120} />
+                    <a href="/climate-monitoring/morocco" className='font-bold text-lg text-center mt-5 block'>Morocco</a>
+                </div>
+
+                <div className='mt-5 p-4 shadow-lg rounded-lg'>
+                    <Image src={"/algeria.png"} width={120} height={120} />
+                    <a href="/climate-monitoring/algeria" className='font-bold text-lg text-center mt-5 block'>Algeria</a>
+                </div>
+                <div className='mt-5 p-4 shadow-lg rounded-lg'>
+                    <Image src={"/libya.png"} width={120} height={120} />
+                    <a href="/climate-monitoring/libya" className='font-bold text-lg text-center mt-5 block'>Libya</a>
+
+                </div>
+                <div className='mt-5 p-4 shadow-lg rounded-lg'>
+                    <Image src={"/egypt.png"} width={120} height={120} />
+                    <a href="/climate-monitoring/egypt" className='font-bold text-lg text-center mt-5 block'>Egypt</a>
+                </div>
+            </div>
+
         </Wrapper>
     );
 };

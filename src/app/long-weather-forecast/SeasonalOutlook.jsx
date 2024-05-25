@@ -52,7 +52,7 @@ const SeasonalOutlook = () => {
     return (
         <Wrapper>
             <div className='flex items-center justify-center flex-col mt-10'>
-                <h1 className='text-5xl font-bold'>Seasonal Outlook</h1>
+                <h1 className='text-5xl text-center font-bold'>Seasonal Outlook</h1>
                 <a className='text-center tracking-wider font-bold text-[#a33737]'>Morocco</a>
             </div>
             <div>
