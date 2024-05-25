@@ -33,7 +33,7 @@ const Header = () => {
                 <div className={`${mobileMenuOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-dropdown">
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg  md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 ">
                         <li>
-                            <a href="#" className="block py-2 px-3 text-gray-900 rounded md:p-0" aria-current="page">Home</a>
+                            <a href="/" className="block py-2 px-3 text-gray-900 rounded md:p-0" aria-current="page">Home</a>
                         </li>
                         <li className="relative">
                             <button
@@ -50,7 +50,7 @@ const Header = () => {
                             <div id="dropdownNavbar" className={`absolute z-10 ${dropdownOpen ? 'block' : 'hidden'} font-normal bg-white/75 divide-y divide-gray-100 rounded-lg shadow w-56`}>
                                 <ul className="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
                                     <li>
-                                        <a href="#" className="block px-4 py-2 hover:bg-gray-100">Long Weather Forecast</a>
+                                        <a href="/long-weather-forecast" className="block px-4 py-2 hover:bg-gray-100">Long Weather Forecast</a>
                                     </li>
                                     <li>
                                         <a href="#" className="block px-4 py-2 hover:bg-gray-100">Climate Monitoring</a>

@@ -24,22 +24,17 @@ const Weather = () => {
 
 
         map.on('load', async () => {
-            // Create a new RadarLayer instance
             const radarLayerInstance = new RadarLayer({
-                apiKey: config.apiKey, // Use the configured API key
+                apiKey: config.apiKey,
             });
             radarLayerRef.current = radarLayerInstance;
 
             // Add the radar layer to the map
             map.addLayer(radarLayerInstance);
-
-            // Wait for the source to be ready
             await radarLayerInstance.onSourceReadyAsync();
 
-            // Set a constant animation speed (adjust as needed)
-            const animationSpeed = 1000; // Increase the value to speed up the animation
+            const animationSpeed = 1000;
 
-            // Start the radar animation with the specified speed
             radarLayerInstance.animate(animationSpeed);
         });
 
@@ -51,7 +46,11 @@ const Weather = () => {
 
     return (
         <Wrapper>
-            <div className='my-20 rounded-lg overflow-hidden'>
+            <div className='flex items-center justify-center flex-col mt-10'>
+                <h1 className='text-5xl font-bold '>Climate Monitoring </h1>
+                <a className='text-center tracking-wider font-bold text-[#6D5DDD]'>North Africa</a>
+            </div>
+            <div className='my-10 rounded-lg overflow-hidden'>
                 <div
                     ref={mapContainerRef}
                     style={{ width: '100%', height: '600px', borderRadius: '15px' }}
