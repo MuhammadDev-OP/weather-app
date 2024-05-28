@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Map, config, MapStyle, Marker } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp } from '@maptiler/weather';
+import * as maptilersdk from '@maptiler/sdk';
 
 const Page = () => {
     const mapContainerRef = useRef(null);
@@ -12,19 +13,21 @@ const Page = () => {
     const windLayerRef = useRef(null);
     const pointerDataDivRef = useRef(null);
 
-    const [showRadar, setShowRadar] = useState(true);
-    const [showTemperature, setShowTemperature] = useState(true);
-
     useEffect(() => {
         // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
+        if (!mapContainerRef.current) {
+            console.error("Map container not found");
+            return;
+        }
+
         // Create a new Map instance with a lighter style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: MapStyle.OPENSTREETMAP, // Use a different style for better visibility
+            style: 'https://api.maptiler.com/maps/ec2ce14d-8665-4b20-be32-d1643f281615/style.json?key=Ox6qYDB3T31KuaIOY5fX',
             center: [17.2283, 26.3351], // Centering on Morocco
-            zoom: 4.5, // Adjusted zoom level to focus on Morocco
+            zoom: 5, // Adjusted zoom level to focus on Morocco
             scrollZoom: false,
             geolocateControl: false,
             maptilerLogo: false,
@@ -45,6 +48,8 @@ const Page = () => {
         };
 
         map.on('load', async () => {
+            console.log('Map loaded');
+
             const radarLayerInstance = new RadarLayer({
                 apiKey: config.apiKey,
                 opacity: 0.7, // Set opacity for the radar layer
@@ -71,7 +76,7 @@ const Page = () => {
             windLayerRef.current = windLayer;
 
             map.setPaintProperty("Water", 'fill-color', "rgba(0, 0, 0, 0.6)");
-            map.addLayer(radarLayerInstance);
+
             map.addLayer(windLayer);
             map.addLayer(temperatureLayerInstance, "Water");
 
@@ -87,12 +92,12 @@ const Page = () => {
                 updatePointerValue(e.lngLat);
             });
         });
+
         const marker = new Marker({
             color: "#dc2626",
             draggable: true,
         }).setLngLat([17.2283, 26.3351]) // Marker coordinates
             .addTo(map);
-
 
         return () => {
             if (map) map.remove();
