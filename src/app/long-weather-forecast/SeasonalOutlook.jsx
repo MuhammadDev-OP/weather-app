@@ -15,39 +15,42 @@ const SeasonalOutlook = () => {
         setSeason(e.target.value);
     };
 
-    const handleSubmit = async () => {
-        const params = new URLSearchParams();
-        params.append('year', year);
-        params.append('saison', season);
+    // const handleSubmit = async () => {
+    //     const params = new URLSearchParams();
+    //     params.append('year', year);
+    //     params.append('saison', season);
 
-        try {
-            const response = await fetch('http://rccna.net/moroccosoresult.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params.toString()
-            });
+    //     try {
+    //         const response = await fetch('http://rccna.net/moroccosoresult.php', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/x-www-form-urlencoded'
+    //             },
+    //             body: params.toString()
+    //         });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! Status: ${response.status}`);
+    //         }
 
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            console.error("There was an error submitting the form!", error);
-        }
-    };
-
-    // const handleDownload = () => {
-    //     const link = document.createElement('a');
-    //     link.href = 'lrf/rcc_outlook_ASO2023.pdf';
-    //     link.download = 'rcc_outlook_ASO2023.pdf';
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
+    //         const data = await response.json();
+    //         console.log(data);
+    //     } catch (error) {
+    //         console.error("There was an error submitting the form!", error);
+    //     }
     // };
+
+    const downloadPDF = () => {
+
+    }
+    const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = '/rcc_outlook_NDJ2023.pdf'; // Update the path to match your file location
+        link.download = 'rcc_outlook_NDJ2023.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <Wrapper>
@@ -107,7 +110,7 @@ const SeasonalOutlook = () => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <button
-                            onClick={handleSubmit}
+                            onClick={handleDownload}
                             className="py-3 mt-10 px-6 
                                     bg-blue-600
                                     text-white hover:bg-blue-500

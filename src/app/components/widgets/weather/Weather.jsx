@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Map, config, MapStyle } from "@maptiler/sdk";
+import { Map, config } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { ColorRamp, RadarLayer, TemperatureLayer, WindLayer } from '@maptiler/weather';
 import Wrapper from '../../shared/Wrapper';
 import Image from 'next/image';
+import * as maptilersdk from '@maptiler/sdk';
 
 const Weather = () => {
     const mapContainerRef = useRef(null);
@@ -21,13 +22,16 @@ const Weather = () => {
         // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
-        // Create a new Map instance with a lighter style for better visibility
+        // Create a new Map instance with the custom style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: MapStyle.OPENSTREETMAP, // Use a different style for better visibility
-            center: [10.0, 29.0], // Centering on North Africa
-            zoom: 4,
-            scrollZoom: false,
+            style: "https://api.maptiler.com/maps/66e97b34-ba85-4b57-bcce-92d3629ca32e/style.json?key=Ox6qYDB3T31KuaIOY5fX",
+            center: [15.0, 20.0], // Centering on North Africa
+            zoom: 2.5, // Initial zoom level
+            scrollZoom: false, // Disable scroll zoom
+            maxZoom: 2.5, // Disable zooming by setting max zoom to 1
+            minZoom: 1, // Set minimum zoom to 1 to fix the zoom level
+            doubleClickZoom: false, // Disable double click zoom
             hash: true,
         });
 
@@ -45,13 +49,62 @@ const Weather = () => {
         map.on('load', async () => {
             const radarLayerInstance = new RadarLayer({
                 apiKey: config.apiKey,
-                opacity: 0.7, // Set opacity for the radar layer
+                opacity: 0.7,
             });
             radarLayerRef.current = radarLayerInstance;
 
+            const geojson = await maptilersdk.data.get('857c1df6-0be8-410d-9980-4f5fb6e19f9b');
+            map.addSource('geojson-overlay', {
+                'type': 'geojson',
+                'data': geojson
+            });
+            map.addLayer({
+                'id': 'geojson-overlay-fill',
+                'type': 'fill',
+                'source': 'geojson-overlay',
+                'filter': ['==', '$type', 'Polygon'],
+                'layout': {},
+                'paint': {
+                    'fill-color': '#fff',
+                    'fill-opacity': 0.4
+                }
+            });
+            map.addLayer({
+                'id': 'geojson-overlay-line',
+                'type': 'line',
+                'source': 'geojson-overlay',
+                'layout': {},
+                'paint': {
+                    'line-color': 'rgb(68, 138, 255)',
+                    'line-width': 3
+                }
+            });
+            map.addLayer({
+                'id': 'geojson-overlay-point',
+                'type': 'circle',
+                'source': 'geojson-overlay',
+                'filter': ['==', '$type', 'Point'],
+                'layout': {},
+                'paint': {
+                    'circle-color': 'rgb(68, 138, 255)',
+                    'circle-stroke-color': '#fff',
+                    'circle-stroke-width': 6,
+                    'circle-radius': 7
+                }
+            });
+
+            // Fit the map to North Africa bounds
+            const northAfricaBounds = [
+                [-17.0, 10.0], // Southwest coordinates (min longitude, min latitude)
+                [50.0, 37.0]  // Northeast coordinates (max longitude, max latitude)
+            ];
+            map.fitBounds(northAfricaBounds, {
+                padding: 20
+            });
+
             const temperatureLayerInstance = new TemperatureLayer({
                 apiKey: config.apiKey,
-                opacity: 0.7, // Set opacity for the temperature layer
+                opacity: 0.7,
             });
             temperatureLayerRef.current = temperatureLayerInstance;
 
@@ -77,7 +130,6 @@ const Weather = () => {
             await temperatureLayerInstance.onSourceReadyAsync();
 
             const animationSpeed = 1000;
-
             radarLayerInstance.animate(animationSpeed);
             temperatureLayerInstance.animate();
 
@@ -129,11 +181,19 @@ const Weather = () => {
                     }}
                 />
             </div>
-            <div className='flex justify-center gap-4 mb-10'>
-                <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-500 text-white rounded'>
-                    Toggle Radar Layer
-                </button>
+            <div className='flex flex-col items-center gap-4 mb-10'>
+                <div>
 
+                    <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-500 text-white rounded'>
+                        Toggle Radar Layer
+                    </button>
+                </div>
+                <div>
+
+                    <button onClick={toggleTemperatureLayer} className='px-4 py-2 bg-blue-500 text-white rounded'>
+                        Toggle Temperature Layer
+                    </button>
+                </div>
             </div>
             <div className='flex items-center justify-center flex-col mt-10'>
                 <h1 className='text-5xl font-bold'>Other Locations</h1>

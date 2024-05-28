@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Map, config, MapStyle, Marker } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp } from '@maptiler/weather';
+import * as maptilersdk from '@maptiler/sdk';
 
 const Page = () => {
     const mapContainerRef = useRef(null);
@@ -12,17 +13,19 @@ const Page = () => {
     const windLayerRef = useRef(null);
     const pointerDataDivRef = useRef(null);
 
-    const [showRadar, setShowRadar] = useState(true);
-    const [showTemperature, setShowTemperature] = useState(true);
-
     useEffect(() => {
         // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
+        if (!mapContainerRef.current) {
+            console.error("Map container not found");
+            return;
+        }
+
         // Create a new Map instance with a lighter style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: MapStyle.OPENSTREETMAP, // Use a different style for better visibility
+            style: 'https://api.maptiler.com/maps/ec2ce14d-8665-4b20-be32-d1643f281615/style.json?key=Ox6qYDB3T31KuaIOY5fX',
             center: [-8.0926, 31.7917], // Centering on Morocco
             zoom: 4.5, // Adjusted zoom level to focus on Morocco
             scrollZoom: false,
@@ -45,6 +48,8 @@ const Page = () => {
         };
 
         map.on('load', async () => {
+            console.log('Map loaded');
+
             const radarLayerInstance = new RadarLayer({
                 apiKey: config.apiKey,
                 opacity: 0.7, // Set opacity for the radar layer
@@ -56,6 +61,71 @@ const Page = () => {
                 opacity: 0.7, // Set opacity for the temperature layer
             });
             temperatureLayerRef.current = temperatureLayerInstance;
+
+            const geojson = await maptilersdk.data.get('857c1df6-0be8-410d-9980-4f5fb6e19f9b');
+            map.addSource('geojson-overlay', {
+                'type': 'geojson',
+                'data': geojson
+            });
+
+            map.addLayer({
+                'id': 'geojson-overlay-fill',
+                'type': 'fill',
+                'source': 'geojson-overlay',
+                'filter': ['==', '$type', 'Polygon'],
+                'layout': {},
+                'paint': {
+                    'fill-color': '#fff',
+                    'fill-opacity': 0.4
+                }
+            });
+
+            map.addLayer({
+                'id': 'geojson-overlay-line',
+                'type': 'line',
+                'source': 'geojson-overlay',
+                'layout': {},
+                'paint': {
+                    'line-color': 'rgb(68, 138, 255)',
+                    'line-width': 3
+                }
+            });
+
+            map.addLayer({
+                'id': 'geojson-overlay-point',
+                'type': 'circle',
+                'source': 'geojson-overlay',
+                'filter': ['==', '$type', 'Point'],
+                'layout': {},
+                'paint': {
+                    'circle-color': 'rgb(68, 138, 255)',
+                    'circle-stroke-color': '#fff',
+                    'circle-stroke-width': 6,
+                    'circle-radius': 7
+                }
+            });
+
+            const bounds = [Infinity, Infinity, -Infinity, -Infinity];
+            const processCoordinates = function (coords) {
+                if (Array.isArray(coords[0])) {
+                    coords.map(c => processCoordinates(c));
+                } else {
+                    bounds[0] = Math.min(bounds[0], coords[0]);
+                    bounds[1] = Math.min(bounds[1], coords[1]);
+                    bounds[2] = Math.max(bounds[2], coords[0]);
+                    bounds[3] = Math.max(bounds[3], coords[1]);
+                }
+            };
+
+            geojson.features.forEach(function (f) {
+                if (f.geometry && f.geometry.coordinates) {
+                    processCoordinates(f.geometry.coordinates);
+                }
+            });
+
+            map.fitBounds(bounds, {
+                padding: 20
+            });
 
             const windLayer = new WindLayer({
                 id: "Wind Particles",
@@ -71,7 +141,7 @@ const Page = () => {
             windLayerRef.current = windLayer;
 
             map.setPaintProperty("Water", 'fill-color', "rgba(0, 0, 0, 0.6)");
-            map.addLayer(radarLayerInstance);
+
             map.addLayer(windLayer);
             map.addLayer(temperatureLayerInstance, "Water");
 
@@ -87,12 +157,12 @@ const Page = () => {
                 updatePointerValue(e.lngLat);
             });
         });
+
         const marker = new Marker({
             color: "#dc2626",
             draggable: true,
         }).setLngLat([-8.0926, 31.7917]) // Marker coordinates
             .addTo(map);
-
 
         return () => {
             if (map) map.remove();
