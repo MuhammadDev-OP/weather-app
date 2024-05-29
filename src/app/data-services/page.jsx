@@ -3,7 +3,7 @@ import LineChart from './components/LineChart'
 import Wrapper from '../components/shared/Wrapper'
 import Hero3 from '../components/widgets/Hero3'
 
-const page = () => {
+const Page = () => {
     return (
         <>
             <Hero3 />
@@ -21,4 +21,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

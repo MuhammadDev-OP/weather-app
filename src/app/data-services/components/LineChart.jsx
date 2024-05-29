@@ -105,14 +105,12 @@ const LineChart = () => {
 
     return (
         <>
-            {typeof window !== 'undefined' && (
-                <Chart
-                    options={chartOptions}
-                    series={series}
-                    type="line"
-                    height={chartOptions.chart.height}
-                />
-            )}
+            <Chart
+                options={chartOptions}
+                series={series}
+                type="line"
+                height={chartOptions.chart.height}
+            />
         </>
     );
 };

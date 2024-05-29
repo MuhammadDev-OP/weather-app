@@ -14,38 +14,37 @@ const Page = () => {
     const pointerDataDivRef = useRef(null);
 
     useEffect(() => {
-        // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
-        if (!mapContainerRef.current) {
-            console.error("Map container not found");
-            return;
-        }
-
-        // Create a new Map instance with a lighter style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: 'https://api.maptiler.com/maps/ec2ce14d-8665-4b20-be32-d1643f281615/style.json?key=Ox6qYDB3T31KuaIOY5fX',
-            center: [-8.0926, 31.7917], // Centering on Morocco
-            zoom: 4.5, // Adjusted zoom level to focus on Morocco
+            style: "https://api.maptiler.com/maps/ec2ce14d-8665-4b20-be32-d1643f281615/style.json?key=Ox6qYDB3T31KuaIOY5fX",
+            center: [-8.0926, 31.7917],
+            zoom: 4.5,
             scrollZoom: false,
             geolocateControl: false,
             maptilerLogo: false,
             scaleControl: false,
             fullscreenControl: false,
             hash: true,
+            doubleClickZoom: false,
+            hash: true
         });
 
         const updatePointerValue = (lngLat) => {
+            console.log("Mouse position:", lngLat);
             if (!lngLat) return;
             const valueWind = windLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
             const valueTemp = temperatureLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
+            console.log("Wind value:", valueWind);
+            console.log("Temperature value:", valueTemp);
             if (!valueWind || !valueTemp) {
                 pointerDataDivRef.current.innerText = "";
                 return;
             }
             pointerDataDivRef.current.innerText = `${valueTemp.value.toFixed(1)}°C \n ${valueWind.speedKilometersPerHour.toFixed(1)} km/h`;
         };
+
 
         map.on('load', async () => {
             console.log('Map loaded');
@@ -55,12 +54,6 @@ const Page = () => {
                 opacity: 0.7, // Set opacity for the radar layer
             });
             radarLayerRef.current = radarLayerInstance;
-
-            const temperatureLayerInstance = new TemperatureLayer({
-                apiKey: config.apiKey,
-                opacity: 0.7, // Set opacity for the temperature layer
-            });
-            temperatureLayerRef.current = temperatureLayerInstance;
 
             const geojson = await maptilersdk.data.get('857c1df6-0be8-410d-9980-4f5fb6e19f9b');
             map.addSource('geojson-overlay', {
@@ -127,6 +120,14 @@ const Page = () => {
                 padding: 20
             });
 
+            const temperatureLayerInstance = new TemperatureLayer({
+                apiKey: config.apiKey,
+                opacity: 0.7, // Set opacity for the temperature layer
+            });
+            temperatureLayerRef.current = temperatureLayerInstance;
+
+
+
             const windLayer = new WindLayer({
                 id: "Wind Particles",
                 colorramp: ColorRamp.builtin.NULL,
@@ -149,7 +150,6 @@ const Page = () => {
             await temperatureLayerInstance.onSourceReadyAsync();
 
             const animationSpeed = 1000;
-
             radarLayerInstance.animate(animationSpeed);
             temperatureLayerInstance.animate();
 
