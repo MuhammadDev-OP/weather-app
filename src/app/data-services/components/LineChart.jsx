@@ -1,17 +1,8 @@
-"use client"
-
-import { useState, useEffect } from "react";
+import React from 'react';
 import Chart from "react-apexcharts";
 import Papa from "papaparse";
 
-const LineChart = () => {
-    const [chartData, setChartData] = useState({
-        series: [],
-    });
-
-    useEffect(() => {
-        fetchCSVData();
-    }, []);
+const LineChart = ({ chartData, updateChartData }) => {
 
     const fetchCSVData = async () => {
         try {
@@ -39,77 +30,21 @@ const LineChart = () => {
                         y: parseFloat(entry.VALUE.replace(',', '.')) || 0, // Handle potential parsing errors
                     }));
 
-                setChartData({
-                    series: [{ name: "Temperature", data: seriesData }],
-                });
+                // Call the callback function passed as props to update the chart data
+                updateChartData(seriesData);
             },
         });
     };
 
-    const { series } = chartData;
-    const chartOptions = {
-        colors: ['#79e200'], // Setting line color to green
-        theme: {
-            mode: "dark",
-        },
-        stroke: {
-            curve: "smooth",
-            width: 3, // Adjust line thickness
-        },
-        markers: {
-            size: 6, // Adjust marker size
-        },
-        chart: {
-            type: "line",
-            height: 750,
-            toolbar: {
-                show: true,
-                tools: {
-                    download: false, // Disable download tool
-                    selection: true, // Enable selection tool for zooming
-                    zoom: true, // Enable zooming tool
-                    zoomin: true,
-                    zoomout: true,
-                    pan: true, // Enable panning tool
-                    reset: true, // Enable reset tool to reset zoom level
-                },
-            },
-            zoom: {
-                enabled: true,
-            },
-            background: "black",
-        },
-        legend: {
-            show: false,
-        },
-        yaxis: {
-            title: {
-                text: "Temperature",
-            },
-        },
-        xaxis: {
-            type: "datetime",
-            labels: {
-                formatter: function (value) {
-                    return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                },
-            },
-        },
-        tooltip: {
-            shared: false,
-            y: {
-                formatter: (val) => `${val.toFixed(2)}`,
-            },
-        },
-    };
+    fetchCSVData();
 
     return (
         <>
             <Chart
-                options={chartOptions}
-                series={series}
+                options={chartData.chartOptions}
+                series={chartData.series}
                 type="line"
-                height={chartOptions.chart.height}
+                height={chartData.chartOptions.chart.height}
             />
         </>
     );
