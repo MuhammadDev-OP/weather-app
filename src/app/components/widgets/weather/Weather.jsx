@@ -17,6 +17,7 @@ const Weather = () => {
 
     const [showRadar, setShowRadar] = useState(true);
     const [showTemperature, setShowTemperature] = useState(true);
+    const [showWind, setShowWind] = useState(true);
 
     useEffect(() => {
         // Set your MapTiler API key
@@ -25,13 +26,13 @@ const Weather = () => {
         // Create a new Map instance with the custom style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: "https://api.maptiler.com/maps/66e97b34-ba85-4b57-bcce-92d3629ca32e/style.json?key=Ox6qYDB3T31KuaIOY5fX",
-            center: [15.0, 20.0], // Centering on North Africa
-            zoom: 2.5, // Initial zoom level
-            scrollZoom: false, // Disable scroll zoom
-            maxZoom: 2.5, // Disable zooming by setting max zoom to 1
-            minZoom: 1, // Set minimum zoom to 1 to fix the zoom level
-            doubleClickZoom: false, // Disable double click zoom
+            style: "https://api.maptiler.com/maps/5e221be6-85d2-4854-85eb-e3de565178ef/style.json?key=Ox6qYDB3T31KuaIOY5fX",
+            center: [15.0, 20.0],
+            zoom: 2.5,
+            scrollZoom: false,
+            maxZoom: 2.5,
+            minZoom: 1,
+            doubleClickZoom: false,
             hash: true,
         });
 
@@ -39,11 +40,16 @@ const Weather = () => {
             if (!lngLat) return;
             const valueWind = windLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
             const valueTemp = temperatureLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            if (!valueWind || !valueTemp) {
+            const valueRain = radarLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
+            if (!valueWind || !valueTemp || !valueRain) {
                 pointerDataDivRef.current.innerText = "";
                 return;
             }
-            pointerDataDivRef.current.innerText = `${valueTemp.value.toFixed(1)}°C \n ${valueWind.speedKilometersPerHour.toFixed(1)} km/h`;
+            pointerDataDivRef.current.innerText = `
+                ${valueTemp.value.toFixed(1)}°C
+                ${valueWind.speedKilometersPerHour.toFixed(1)} km/h
+                ${valueRain.value.toFixed(1)} mm/h
+            `;
         };
 
         map.on('load', async () => {
@@ -57,40 +63,6 @@ const Weather = () => {
             map.addSource('geojson-overlay', {
                 'type': 'geojson',
                 'data': geojson
-            });
-            map.addLayer({
-                'id': 'geojson-overlay-fill',
-                'type': 'fill',
-                'source': 'geojson-overlay',
-                'filter': ['==', '$type', 'Polygon'],
-                'layout': {},
-                'paint': {
-                    'fill-color': '#fff',
-                    'fill-opacity': 0.4
-                }
-            });
-            map.addLayer({
-                'id': 'geojson-overlay-line',
-                'type': 'line',
-                'source': 'geojson-overlay',
-                'layout': {},
-                'paint': {
-                    'line-color': 'rgb(68, 138, 255)',
-                    'line-width': 3
-                }
-            });
-            map.addLayer({
-                'id': 'geojson-overlay-point',
-                'type': 'circle',
-                'source': 'geojson-overlay',
-                'filter': ['==', '$type', 'Point'],
-                'layout': {},
-                'paint': {
-                    'circle-color': 'rgb(68, 138, 255)',
-                    'circle-stroke-color': '#fff',
-                    'circle-stroke-width': 6,
-                    'circle-radius': 7
-                }
             });
 
             // Fit the map to North Africa bounds
@@ -135,6 +107,7 @@ const Weather = () => {
 
             map.on('mousemove', (e) => {
                 updatePointerValue(e.lngLat);
+
             });
         });
 
@@ -146,21 +119,28 @@ const Weather = () => {
     const toggleRadarLayer = () => {
         if (radarLayerRef.current) {
             setShowRadar(!showRadar);
-            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.5);
+            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.7);
         }
     };
 
     const toggleTemperatureLayer = () => {
         if (temperatureLayerRef.current) {
             setShowTemperature(!showTemperature);
-            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.5);
+            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9);
+        }
+    };
+
+    const toggleWindLayer = () => {
+        if (windLayerRef.current) {
+            setShowWind(!showWind);
+            windLayerRef.current.setOpacity(showWind ? 0 : 0.7);
         }
     };
 
     return (
         <Wrapper>
             <div className='flex items-center justify-center flex-col mt-10'>
-                <h1 className='text-5xl font-bold'>Climate Monitoring</h1>
+                <h1 className='text-3xl md:text-5xl font-bold'>Climate Monitoring</h1>
                 <a className='text-center tracking-wider font-bold text-[#6D5DDD]'>North Africa</a>
             </div>
             <div className='my-10 rounded-lg overflow-hidden relative'>
@@ -181,22 +161,25 @@ const Weather = () => {
                     }}
                 />
             </div>
-            <div className='flex flex-col items-center gap-4 mb-10'>
+            <div className='flex flex-col md:flex-row justify-center items-center gap-4 mb-10'>
                 <div>
-
-                    <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-500 text-white rounded'>
-                        Toggle Radar Layer
+                    <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-600 text-white rounded'>
+                        Toggle Rain Layer
                     </button>
                 </div>
                 <div>
-
-                    <button onClick={toggleTemperatureLayer} className='px-4 py-2 bg-blue-500 text-white rounded'>
+                    <button onClick={toggleTemperatureLayer} className='px-4 py-2 bg-amber-500 text-white rounded'>
                         Toggle Temperature Layer
+                    </button>
+                </div>
+                <div>
+                    <button onClick={toggleWindLayer} className='px-4 py-2 bg-slate-500 text-white rounded'>
+                        Toggle Wind Layer
                     </button>
                 </div>
             </div>
             <div className='flex items-center justify-center flex-col mt-10'>
-                <h1 className='text-5xl font-bold'>Other Locations</h1>
+                <h1 className='text-3xl md:text-5xl font-bold'>Other Locations</h1>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full mt-5 mb-10 justify-items-center'>
                 <div className='mt-5 p-4 shadow-lg rounded-lg'>

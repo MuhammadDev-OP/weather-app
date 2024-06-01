@@ -67,18 +67,19 @@ const Header = () => {
                         </li>
                         <li className="relative">
                             <button
+
                                 id="climateDropdownLink"
                                 onClick={toggleClimateDropdown}
-                                className="flex items-center text-xl justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-green-700 md:p-0 md:w-auto"
+                                className=""
                             >
-                                Climate Monitoring
-                                <svg className="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <a className='flex items-center text-xl justify-between w-full py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-green-700 md:p-0 md:w-auto' href="/climate-monitoring" >Climate Monitoring</a>
+                                {/* <svg className="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                                </svg>
+                                </svg> */}
                             </button>
                             {/* Dropdown menu */}
-                            <div id="climateDropdown" className={`absolute z-10 ${climateDropdownOpen ? 'block' : 'hidden'} font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-56`}>
-                                <ul className="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
+                            {/* <div id="climateDropdown" className={`absolute z-10 ${climateDropdownOpen ? 'block' : 'hidden'} font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-56`}>
+                                {/* <ul className="py-2 text-sm text-gray-700" aria-labelledby="dropdownLargeButton">
                                     <li>
                                         <a href="/climate-monitoring/morocco" className="block px-4 py-2 hover:bg-gray-100">Morocco</a>
                                     </li>
@@ -91,8 +92,8 @@ const Header = () => {
                                     <li>
                                         <a href="/climate-monitoring/egypt" className="block px-4 py-2 hover:bg-gray-100">Egypt</a>
                                     </li>
-                                </ul>
-                            </div>
+                                </ul> */}
+                            {/* </div> */}
                         </li>
                     </ul>
                 </div>
@@ -102,7 +103,7 @@ const Header = () => {
                     </span>
                 </a>
             </div>
-        </nav>
+        </nav >
     );
 };
 

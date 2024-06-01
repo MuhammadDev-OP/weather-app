@@ -1,11 +1,16 @@
 "use client"
 
 import React, { useState } from 'react';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import Wrapper from '../components/shared/Wrapper';
 
 const SeasonalOutlook = () => {
     const [year, setYear] = useState("");
     const [season, setSeason] = useState("");
+    const [showPDF, setShowPDF] = useState(false);
 
     const handleYearChange = (e) => {
         setYear(e.target.value);
@@ -15,42 +20,12 @@ const SeasonalOutlook = () => {
         setSeason(e.target.value);
     };
 
-    // const handleSubmit = async () => {
-    //     const params = new URLSearchParams();
-    //     params.append('year', year);
-    //     params.append('saison', season);
-
-    //     try {
-    //         const response = await fetch('http://rccna.net/moroccosoresult.php', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/x-www-form-urlencoded'
-    //             },
-    //             body: params.toString()
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! Status: ${response.status}`);
-    //         }
-
-    //         const data = await response.json();
-    //         console.log(data);
-    //     } catch (error) {
-    //         console.error("There was an error submitting the form!", error);
-    //     }
-    // };
-
-    const downloadPDF = () => {
-
-    }
     const handleDownload = () => {
-        const link = document.createElement('a');
-        link.href = '/rcc_outlook_NDJ2023.pdf'; // Update the path to match your file location
-        link.download = 'rcc_outlook_NDJ2023.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        setShowPDF(true);
     };
+
+    // Create a new instance of the default layout plugin
+    const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
     return (
         <Wrapper>
@@ -64,6 +39,7 @@ const SeasonalOutlook = () => {
                         <div>
                             <label htmlFor="year" className="block text-black my-3 font-[500]">Year</label>
                             <select
+                                required
                                 id="year"
                                 value={year}
                                 onChange={handleYearChange}
@@ -87,6 +63,7 @@ const SeasonalOutlook = () => {
                         <div>
                             <label htmlFor="season" className="block text-black my-3 font-[500]">Season</label>
                             <select
+                                required
                                 id="season"
                                 value={season}
                                 onChange={handleSeasonChange}
@@ -119,8 +96,19 @@ const SeasonalOutlook = () => {
                         >
                             Show Product
                         </button>
-
                     </div>
+                    {showPDF && (
+                        <div className="mt-10 w-full flex justify-center">
+                            <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js`}>
+                                <div style={{ height: '750px', width: '100%' }}>
+                                    <Viewer
+                                        fileUrl="/rcc_outlook_NDJ2023.pdf"
+                                        plugins={[defaultLayoutPluginInstance]}
+                                    />
+                                </div>
+                            </Worker>
+                        </div>
+                    )}
                 </div>
             </div>
         </Wrapper>

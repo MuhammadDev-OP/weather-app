@@ -11,9 +11,9 @@ const Hero3 = () => {
                 </h2>
             </div>
             <div className="text-center">
-                <button className="mt-4 bg-[#6D5DDD] text-white p-2 rounded-xl shadow-black shadow-sm hover:scale-105 duration-300 transition-transform">
+                {/* <button className="mt-4 bg-[#6D5DDD] text-white p-2 rounded-xl shadow-black shadow-sm hover:scale-105 duration-300 transition-transform">
                     Explore Now
-                </button>
+                </button> */}
             </div>
         </div>
     )

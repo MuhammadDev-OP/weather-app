@@ -21,7 +21,7 @@ const Page = () => {
             <Hero3 />
             <Wrapper>
                 <div className='flex items-center justify-center flex-col mt-10'>
-                    <h1 className='text-5xl text-center font-bold'>Data Services</h1>
+                    <h1 className='text-lg text-center font-bold md:text-5xl'>Data Services</h1>
                     <a className='text-center tracking-wider font-bold text-[#a33737]'>Morocco</a>
                 </div>
                 <div className='mt-10'>
