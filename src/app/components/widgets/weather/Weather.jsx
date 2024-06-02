@@ -198,6 +198,10 @@ const Weather = () => {
                     <Image src={"/egypt.png"} width={120} height={120} alt="Egypt" />
                     <a href="/climate-monitoring/egypt" className='font-bold text-lg text-center mt-5 block'>Egypt</a>
                 </div>
+                <div className='mt-5 p-4 shadow-lg rounded-lg'>
+                    <Image src={"/tunisia.png"} width={120} height={120} alt="Egypt" />
+                    <a href="/climate-monitoring/tunisia" className='font-bold text-lg text-center mt-5 block'>Tunisia</a>
+                </div>
             </div>
         </Wrapper>
     );

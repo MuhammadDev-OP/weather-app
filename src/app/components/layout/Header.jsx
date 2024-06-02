@@ -97,7 +97,7 @@ const Header = () => {
                         </li>
                     </ul>
                 </div>
-                <a href="#" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <span className="self-center text-2xl font-semibold whitespace-nowrap">
                         <Image src={"/logo.jpg"} width={1920} height={1080} className='w-[60px] h-[60px]' alt='logo' />
                     </span>
