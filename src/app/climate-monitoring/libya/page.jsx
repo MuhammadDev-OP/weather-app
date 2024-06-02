@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Map, config, MapStyle, Marker } from "@maptiler/sdk";
+import { Map, config, Marker } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp, PrecipitationLayer } from '@maptiler/weather';
-import * as maptilersdk from '@maptiler/sdk';
 
 const Page = () => {
     const mapContainerRef = useRef(null);
@@ -27,28 +26,36 @@ const Page = () => {
             center: [13.1897, 32.8872], // Coordinates for Tripoli, Libya
             zoom: 4.5,
             scrollZoom: true,
-            geolocateControl: false,
-            maptilerLogo: false,
             scaleControl: false,
             fullscreenControl: false,
             hash: true,
             doubleClickZoom: false,
         });
 
-        const updatePointerValue = (lngLat) => {
-            console.log("Mouse position:", lngLat);
+        const updatePointerValue = async (lngLat) => {
             if (!lngLat) return;
-            const valueWind = windLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            const valueTemp = temperatureLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            const valueRain = precipitationLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            console.log("Wind value:", valueWind);
-            console.log("Temperature value:", valueTemp);
-            console.log("Rain value:", valueRain);
-            if (!valueWind || !valueTemp || !valueRain) {
-                pointerDataDivRef.current.innerText = "";
-                return;
+
+            try {
+                const valueWind = windLayerRef.current ? await windLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueTemp = temperatureLayerRef.current ? await temperatureLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueRain = radarLayerRef.current ? await radarLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+
+                if (!valueWind && !valueTemp && !valueRain) {
+                    pointerDataDivRef.current.innerText = "";
+                    return;
+                }
+                const windText = valueWind ? `${valueWind.speedKilometersPerHour.toFixed(1)} km/h` : "No data";
+                const tempText = valueTemp ? `${valueTemp.value.toFixed(1)}°C` : "No data";
+                const rainText = valueRain ? `${valueRain.value.toFixed(1)} mm/h` : "No data";
+
+                pointerDataDivRef.current.innerText = `
+                    Temperature: ${tempText}
+                    Wind Speed: ${windText}
+                    Rainfall: ${rainText}
+                `;
+            } catch (error) {
+                console.error('Error updating pointer value:', error);
             }
-            pointerDataDivRef.current.innerText = `${valueTemp.value.toFixed(1)}°C \n ${valueWind.speedKilometersPerHour.toFixed(1)} km/h \n ${valueRain.value.toFixed(1)} mm/h`;
         };
 
         map.on('load', async () => {
@@ -59,34 +66,6 @@ const Page = () => {
                 opacity: 0.7, // Set opacity for the radar layer
             });
             radarLayerRef.current = radarLayerInstance;
-
-            // const geojson = await maptilersdk.data.get('857c1df6-0be8-410d-9980-4f5fb6e19f9b');
-            // map.addSource('geojson-overlay', {
-            //     'type': 'geojson',
-            //     'data': geojson
-            // });
-
-            // const bounds = [Infinity, Infinity, -Infinity, -Infinity];
-            // const processCoordinates = function (coords) {
-            //     if (Array.isArray(coords[0])) {
-            //         coords.map(c => processCoordinates(c));
-            //     } else {
-            //         bounds[0] = Math.min(bounds[0], coords[0]);
-            //         bounds[1] = Math.min(bounds[1], coords[1]);
-            //         bounds[2] = Math.max(bounds[2], coords[0]);
-            //         bounds[3] = Math.max(bounds[3], coords[1]);
-            //     }
-            // };
-
-            // geojson.features.forEach(function (f) {
-            //     if (f.geometry && f.geometry.coordinates) {
-            //         processCoordinates(f.geometry.coordinates);
-            //     }
-            // });
-
-            // map.fitBounds(bounds, {
-            //     padding: 20
-            // });
 
             const temperatureLayerInstance = new TemperatureLayer({
                 apiKey: config.apiKey,
@@ -113,11 +92,10 @@ const Page = () => {
             });
             precipitationLayerRef.current = precipitationLayerInstance;
 
-            map.setPaintProperty("Water", 'fill-color', "rgba(0, 0, 0, 0.6)");
-
-            map.addLayer(windLayer);
+            map.addLayer(radarLayerInstance);
             map.addLayer(temperatureLayerInstance, "Water");
             map.addLayer(precipitationLayerInstance, "Water");
+            map.addLayer(windLayer);
 
             await radarLayerInstance.onSourceReadyAsync();
             await temperatureLayerInstance.onSourceReadyAsync();
@@ -131,24 +109,6 @@ const Page = () => {
             map.on('mousemove', (e) => {
                 updatePointerValue(e.lngLat);
             });
-
-            const toggleLayers = () => {
-                if (activeLayer === 'temperature') {
-                    temperatureLayerInstance.setOpacity(0.7);
-                    windLayer.setOpacity(0);
-                    precipitationLayerInstance.setOpacity(0);
-                } else if (activeLayer === 'wind') {
-                    temperatureLayerInstance.setOpacity(0);
-                    windLayer.setOpacity(0.8);
-                    precipitationLayerInstance.setOpacity(0);
-                } else if (activeLayer === 'rain') {
-                    temperatureLayerInstance.setOpacity(0);
-                    windLayer.setOpacity(0);
-                    precipitationLayerInstance.setOpacity(0.7);
-                }
-            };
-
-            toggleLayers();
         });
 
         const marker = new Marker({
@@ -171,21 +131,21 @@ const Page = () => {
     const toggleRadarLayer = () => {
         if (radarLayerRef.current) {
             setShowRadar(!showRadar);
-            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.5);
+            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 
     const toggleTemperatureLayer = () => {
         if (temperatureLayerRef.current) {
             setShowTemperature(!showTemperature);
-            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9);
+            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 
     const toggleWindLayer = () => {
         if (windLayerRef.current) {
             setShowWind(!showWind);
-            windLayerRef.current.setOpacity(showWind ? 0 : 0.5);
+            windLayerRef.current.setOpacity(showWind ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 
@@ -205,7 +165,7 @@ const Page = () => {
                     pointerEvents: 'none',
                 }}
             />
-            <div style={{ position: 'absolute', bottom: '40px', gap: "10px", left: '10px', zIndex: 1 }}>
+            <div style={{ position: 'absolute', bottom: '40px', gap: "10px", left: '10px', zIndex: 1, display: 'flex' }}>
                 <div>
                     <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-600 text-white rounded'>
                         Toggle Rain Layer

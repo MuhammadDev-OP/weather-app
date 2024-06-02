@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Map, config, MapStyle, Marker } from "@maptiler/sdk";
+import { Map, config, Marker } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp, PrecipitationLayer } from '@maptiler/weather';
-import * as maptilersdk from '@maptiler/sdk';
 
 const Page = () => {
     const mapContainerRef = useRef(null);
@@ -24,11 +23,9 @@ const Page = () => {
         const map = new Map({
             container: mapContainerRef.current,
             style: "https://api.maptiler.com/maps/5e221be6-85d2-4854-85eb-e3de565178ef/style.json?key=Ox6qYDB3T31KuaIOY5fX#1.01/0/-48.8",
-            center: [31.2357, 36.7372],
+            center: [9.0, 34.0], // Coordinates for Tripoli, Libya
             zoom: 4.5,
             scrollZoom: true,
-            geolocateControl: false,
-            maptilerLogo: false,
             scaleControl: false,
             fullscreenControl: false,
             hash: true,
@@ -47,7 +44,6 @@ const Page = () => {
                     pointerDataDivRef.current.innerText = "";
                     return;
                 }
-
                 const windText = valueWind ? `${valueWind.speedKilometersPerHour.toFixed(1)} km/h` : "No data";
                 const tempText = valueTemp ? `${valueTemp.value.toFixed(1)}°C` : "No data";
                 const rainText = valueRain ? `${valueRain.value.toFixed(1)} mm/h` : "No data";
@@ -96,8 +92,6 @@ const Page = () => {
             });
             precipitationLayerRef.current = precipitationLayerInstance;
 
-            map.setPaintProperty("Water", 'fill-color', "rgba(0, 0, 0, 0.6)");
-
             map.addLayer(radarLayerInstance);
             map.addLayer(temperatureLayerInstance, "Water");
             map.addLayer(precipitationLayerInstance, "Water");
@@ -115,16 +109,15 @@ const Page = () => {
             map.on('mousemove', (e) => {
                 updatePointerValue(e.lngLat);
             });
-
         });
 
         const marker = new Marker({
             element: document.createElement('div')
-        }).setLngLat([31.2357, 30.0444]) // Coordinates for Tripoli, Libya
+        }).setLngLat([10.1815, 36.8065])
             .addTo(map);
 
         const markerElement = marker.getElement();
-        markerElement.style.backgroundImage = 'url("/egypt1.png")';
+        markerElement.style.backgroundImage = 'url("/tunisia1.png")';
         markerElement.style.backgroundSize = 'cover';
         markerElement.style.width = '50px';
         markerElement.style.height = '50px';
@@ -138,21 +131,21 @@ const Page = () => {
     const toggleRadarLayer = () => {
         if (radarLayerRef.current) {
             setShowRadar(!showRadar);
-            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.5);
+            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 
     const toggleTemperatureLayer = () => {
         if (temperatureLayerRef.current) {
             setShowTemperature(!showTemperature);
-            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9);
+            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 
     const toggleWindLayer = () => {
         if (windLayerRef.current) {
             setShowWind(!showWind);
-            windLayerRef.current.setOpacity(showWind ? 0 : 0.5);
+            windLayerRef.current.setOpacity(showWind ? 0 : 0.9); // Set opacity to 0.9 when showing
         }
     };
 

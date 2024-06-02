@@ -7,8 +7,6 @@ import { ColorRamp, RadarLayer, TemperatureLayer, WindLayer } from '@maptiler/we
 import { Marker } from '@maptiler/sdk';
 import { PrecipitationLayer } from '@maptiler/weather';
 
-import * as maptilersdk from '@maptiler/sdk';
-
 const Page = () => {
     const mapContainerRef = useRef(null);
     const radarLayerRef = useRef(null);
@@ -40,24 +38,29 @@ const Page = () => {
             if (!lngLat) return;
 
             try {
-                const valueWind = await windLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-                const valueTemp = await temperatureLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-                const valueRain = await radarLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
+                const valueWind = windLayerRef.current ? await windLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueTemp = temperatureLayerRef.current ? await temperatureLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueRain = radarLayerRef.current ? await radarLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
 
-                if (!valueWind || !valueTemp || !valueRain) {
+                if (!valueWind && !valueTemp && !valueRain) {
                     pointerDataDivRef.current.innerText = "";
                     return;
                 }
 
+                const windText = valueWind ? `${valueWind.speedKilometersPerHour.toFixed(1)} km/h` : "No data";
+                const tempText = valueTemp ? `${valueTemp.value.toFixed(1)}°C` : "No data";
+                const rainText = valueRain ? `${valueRain.value.toFixed(1)} mm/h` : "No data";
+
                 pointerDataDivRef.current.innerText = `
-                    ${valueTemp.value.toFixed(1)}°C
-                    ${valueWind.speedKilometersPerHour.toFixed(1)} km/h
-                    ${valueRain.value.toFixed(1)} mm/h
+                    Temperature: ${tempText}
+                    Wind Speed: ${windText}
+                    Rainfall: ${rainText}
                 `;
             } catch (error) {
                 console.error('Error updating pointer value:', error);
             }
         };
+
         map.on('load', async () => {
             console.log('Map loaded');
 
@@ -92,9 +95,10 @@ const Page = () => {
             });
             precipitationLayerRef.current = precipitationLayerInstance;
 
-            map.addLayer(windLayer);
+            map.addLayer(radarLayerInstance);
             map.addLayer(temperatureLayerInstance, "Water");
             map.addLayer(precipitationLayerInstance, "Water");
+            map.addLayer(windLayer);
 
             await radarLayerInstance.onSourceReadyAsync();
             await temperatureLayerInstance.onSourceReadyAsync();
@@ -107,7 +111,6 @@ const Page = () => {
 
             map.on('mousemove', (e) => {
                 updatePointerValue(e.lngLat);
-                console.log(e)
             });
 
         });
@@ -125,30 +128,29 @@ const Page = () => {
         markerElement.style.borderRadius = '3px';
         markerElement.style.marginTop = '10px'
 
-
         return () => {
             if (map) map.remove();
         };
     }, []);
 
     const toggleRadarLayer = () => {
-        if (precipitationLayerRef.current) {
+        if (radarLayerRef.current) {
             setShowRadar(!showRadar);
-            precipitationLayerRef.current.setOpacity(showRadar ? 0 : 0.8);
+            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.7);
         }
     };
 
     const toggleTemperatureLayer = () => {
         if (temperatureLayerRef.current) {
             setShowTemperature(!showTemperature);
-            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9);
+            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.7);
         }
     };
 
     const toggleWindLayer = () => {
         if (windLayerRef.current) {
             setShowWind(!showWind);
-            windLayerRef.current.setOpacity(showWind ? 0 : 0.5);
+            windLayerRef.current.setOpacity(showWind ? 0 : 0.8);
         }
     };
 
@@ -168,7 +170,7 @@ const Page = () => {
                     pointerEvents: 'none',
                 }}
             />
-            <div style={{ position: 'absolute', bottom: '40px', gap: "10px", left: '10px', zIndex: 1 }}>
+            <div style={{ position: 'absolute', bottom: '40px', gap: "10px", left: '10px', zIndex: 1, display: 'flex' }}>
                 <div>
                     <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-600 text-white rounded'>
                         Toggle Rain Layer
