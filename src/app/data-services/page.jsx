@@ -4,8 +4,9 @@ import dynamic from 'next/dynamic'
 import React from 'react'
 import Wrapper from '../components/shared/Wrapper'
 import Hero3 from '../components/widgets/Hero3'
-import LineChart2 from './components/LineChart2';
 const LineChart = dynamic(() => import('./components/LineChart'), { ssr: false });
+const LineChart2 = dynamic(() => import('./components/LineChart2'), { ssr: false });
+
 
 
 const Page = () => {
