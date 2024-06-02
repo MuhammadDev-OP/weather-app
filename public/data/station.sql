@@ -1,0 +1,74 @@
+--------------------------------------------------------
+--  Fichier créé - mardi-avril-23-2024   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Table STATIONS
+--------------------------------------------------------
+
+  CREATE TABLE "IMSDB"."STATIONS" 
+   (	"ID" NUMBER(5,0), 
+	"NAME" VARCHAR2(64 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into IMSDB.STATIONS
+SET DEFINE OFF;
+Insert into IMSDB.STATIONS (ID,NAME) values ('15','AgadirAnza');
+Insert into IMSDB.STATIONS (ID,NAME) values ('7','Azilal');
+Insert into IMSDB.STATIONS (ID,NAME) values ('5','BenGuerir');
+Insert into IMSDB.STATIONS (ID,NAME) values ('6','BeniMellal');
+Insert into IMSDB.STATIONS (ID,NAME) values ('20','Boujdour');
+Insert into IMSDB.STATIONS (ID,NAME) values ('2','Chefchaoun');
+Insert into IMSDB.STATIONS (ID,NAME) values ('16','Guelmim');
+Insert into IMSDB.STATIONS (ID,NAME) values ('1','Larache');
+Insert into IMSDB.STATIONS (ID,NAME) values ('21','Michlefen');
+Insert into IMSDB.STATIONS (ID,NAME) values ('11','Michlifen Sommet');
+Insert into IMSDB.STATIONS (ID,NAME) values ('13','Midelt');
+Insert into IMSDB.STATIONS (ID,NAME) values ('10','Misour');
+Insert into IMSDB.STATIONS (ID,NAME) values ('22','Oukaimden');
+Insert into IMSDB.STATIONS (ID,NAME) values ('8','Oulad Ghalm');
+Insert into IMSDB.STATIONS (ID,NAME) values ('12','Saaidia');
+Insert into IMSDB.STATIONS (ID,NAME) values ('3','SidiKacem');
+Insert into IMSDB.STATIONS (ID,NAME) values ('18','Smara');
+Insert into IMSDB.STATIONS (ID,NAME) values ('4','TangerPort');
+Insert into IMSDB.STATIONS (ID,NAME) values ('9','Taounate');
+Insert into IMSDB.STATIONS (ID,NAME) values ('19','Tarfaya');
+Insert into IMSDB.STATIONS (ID,NAME) values ('14','Taza');
+Insert into IMSDB.STATIONS (ID,NAME) values ('17','Zagora');
+--------------------------------------------------------
+--  DDL for Index PK_STATIONS
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "IMSDB"."PK_STATIONS" ON "IMSDB"."STATIONS" ("ID") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index UQ_STATION
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "IMSDB"."UQ_STATION" ON "IMSDB"."STATIONS" ("NAME") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table STATIONS
+--------------------------------------------------------
+
+  ALTER TABLE "IMSDB"."STATIONS" ADD CONSTRAINT "PK_STATIONS" PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "IMSDB"."STATIONS" MODIFY ("NAME" NOT NULL ENABLE);
+ 
+  ALTER TABLE "IMSDB"."STATIONS" ADD CONSTRAINT "UQ_STATION" UNIQUE ("NAME")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;

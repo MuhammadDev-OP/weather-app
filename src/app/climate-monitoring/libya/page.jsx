@@ -1,50 +1,61 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Map, config, MapStyle, Marker } from "@maptiler/sdk";
+import { Map, config, Marker } from "@maptiler/sdk";
 import '@maptiler/sdk/dist/maptiler-sdk.css';
-import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp } from '@maptiler/weather';
-import * as maptilersdk from '@maptiler/sdk';
+import { RadarLayer, TemperatureLayer, WindLayer, ColorRamp, PrecipitationLayer } from '@maptiler/weather';
 
 const Page = () => {
     const mapContainerRef = useRef(null);
     const radarLayerRef = useRef(null);
     const temperatureLayerRef = useRef(null);
     const windLayerRef = useRef(null);
+    const precipitationLayerRef = useRef(null);
     const pointerDataDivRef = useRef(null);
 
+    const [showRadar, setShowRadar] = useState(true);
+    const [showTemperature, setShowTemperature] = useState(true);
+    const [showWind, setShowWind] = useState(true);
+
     useEffect(() => {
-        // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
-        if (!mapContainerRef.current) {
-            console.error("Map container not found");
-            return;
-        }
-
-        // Create a new Map instance with a lighter style for better visibility
         const map = new Map({
             container: mapContainerRef.current,
-            style: 'https://api.maptiler.com/maps/ec2ce14d-8665-4b20-be32-d1643f281615/style.json?key=Ox6qYDB3T31KuaIOY5fX',
-            center: [17.2283, 26.3351], // Centering on Morocco
-            zoom: 5, // Adjusted zoom level to focus on Morocco
-            scrollZoom: false,
-            geolocateControl: false,
-            maptilerLogo: false,
+            style: "https://api.maptiler.com/maps/5e221be6-85d2-4854-85eb-e3de565178ef/style.json?key=Ox6qYDB3T31KuaIOY5fX#1.01/0/-48.8",
+            center: [13.1897, 32.8872], // Coordinates for Tripoli, Libya
+            zoom: 4.5,
+            scrollZoom: true,
             scaleControl: false,
             fullscreenControl: false,
             hash: true,
+            doubleClickZoom: false,
         });
 
-        const updatePointerValue = (lngLat) => {
+        const updatePointerValue = async (lngLat) => {
             if (!lngLat) return;
-            const valueWind = windLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            const valueTemp = temperatureLayerRef.current?.pickAt(lngLat.lng, lngLat.lat);
-            if (!valueWind || !valueTemp) {
-                pointerDataDivRef.current.innerText = "";
-                return;
+
+            try {
+                const valueWind = windLayerRef.current ? await windLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueTemp = temperatureLayerRef.current ? await temperatureLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+                const valueRain = radarLayerRef.current ? await radarLayerRef.current.pickAt(lngLat.lng, lngLat.lat) : null;
+
+                if (!valueWind && !valueTemp && !valueRain) {
+                    pointerDataDivRef.current.innerText = "";
+                    return;
+                }
+                const windText = valueWind ? `${valueWind.speedKilometersPerHour.toFixed(1)} km/h` : "No data";
+                const tempText = valueTemp ? `${valueTemp.value.toFixed(1)}°C` : "No data";
+                const rainText = valueRain ? `${valueRain.value.toFixed(1)} mm/h` : "No data";
+
+                pointerDataDivRef.current.innerText = `
+                    Temperature: ${tempText}
+                    Wind Speed: ${windText}
+                    Rainfall: ${rainText}
+                `;
+            } catch (error) {
+                console.error('Error updating pointer value:', error);
             }
-            pointerDataDivRef.current.innerText = `${valueTemp.value.toFixed(1)}°C \n ${valueWind.speedKilometersPerHour.toFixed(1)} km/h`;
         };
 
         map.on('load', async () => {
@@ -75,18 +86,25 @@ const Page = () => {
             });
             windLayerRef.current = windLayer;
 
-            map.setPaintProperty("Water", 'fill-color', "rgba(0, 0, 0, 0.6)");
+            const precipitationLayerInstance = new PrecipitationLayer({
+                apiKey: config.apiKey,
+                opacity: 0.7, // Set opacity for the precipitation layer
+            });
+            precipitationLayerRef.current = precipitationLayerInstance;
 
-            map.addLayer(windLayer);
+            map.addLayer(radarLayerInstance);
             map.addLayer(temperatureLayerInstance, "Water");
+            map.addLayer(precipitationLayerInstance, "Water");
+            map.addLayer(windLayer);
 
             await radarLayerInstance.onSourceReadyAsync();
             await temperatureLayerInstance.onSourceReadyAsync();
+            await precipitationLayerInstance.onSourceReadyAsync();
 
             const animationSpeed = 1000;
-
             radarLayerInstance.animate(animationSpeed);
             temperatureLayerInstance.animate();
+            precipitationLayerInstance.animate();
 
             map.on('mousemove', (e) => {
                 updatePointerValue(e.lngLat);
@@ -94,15 +112,42 @@ const Page = () => {
         });
 
         const marker = new Marker({
-            color: "#dc2626",
-            draggable: true,
-        }).setLngLat([17.2283, 26.3351]) // Marker coordinates
+            element: document.createElement('div')
+        }).setLngLat([13.1897, 32.8872]) // Coordinates for Tripoli, Libya
             .addTo(map);
+
+        const markerElement = marker.getElement();
+        markerElement.style.backgroundImage = 'url("/libya1.png")';
+        markerElement.style.backgroundSize = 'cover';
+        markerElement.style.width = '50px';
+        markerElement.style.height = '50px';
+        markerElement.style.borderRadius = '3px';
 
         return () => {
             if (map) map.remove();
         };
     }, []);
+
+    const toggleRadarLayer = () => {
+        if (radarLayerRef.current) {
+            setShowRadar(!showRadar);
+            radarLayerRef.current.setOpacity(showRadar ? 0 : 0.9); // Set opacity to 0.9 when showing
+        }
+    };
+
+    const toggleTemperatureLayer = () => {
+        if (temperatureLayerRef.current) {
+            setShowTemperature(!showTemperature);
+            temperatureLayerRef.current.setOpacity(showTemperature ? 0 : 0.9); // Set opacity to 0.9 when showing
+        }
+    };
+
+    const toggleWindLayer = () => {
+        if (windLayerRef.current) {
+            setShowWind(!showWind);
+            windLayerRef.current.setOpacity(showWind ? 0 : 0.9); // Set opacity to 0.9 when showing
+        }
+    };
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
@@ -111,7 +156,7 @@ const Page = () => {
                 ref={pointerDataDivRef}
                 style={{
                     position: 'absolute',
-                    top: '100px',
+                    top: '120px',
                     left: '10px',
                     background: 'rgba(255, 255, 255, 0.8)',
                     padding: '10px',
@@ -120,6 +165,23 @@ const Page = () => {
                     pointerEvents: 'none',
                 }}
             />
+            <div style={{ position: 'absolute', bottom: '40px', gap: "10px", left: '10px', zIndex: 1, display: 'flex' }}>
+                <div>
+                    <button onClick={toggleRadarLayer} className='px-4 py-2 bg-blue-600 text-white rounded'>
+                        Toggle Rain Layer
+                    </button>
+                </div>
+                <div>
+                    <button onClick={toggleTemperatureLayer} className='px-4 py-2 bg-amber-500 text-white rounded'>
+                        Toggle Temperature Layer
+                    </button>
+                </div>
+                <div>
+                    <button onClick={toggleWindLayer} className='px-4 py-2 bg-slate-500 text-white rounded'>
+                        Toggle Wind Layer
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
