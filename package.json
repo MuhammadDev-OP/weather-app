@@ -11,8 +11,6 @@
   "dependencies": {
     "@maptiler/sdk": "^2.0.3",
     "@maptiler/weather": "^2.0.0",
-    "@react-pdf-viewer/core": "^3.7.0",
-    "@react-pdf-viewer/default-layout": "^3.12.0",
     "autoprefixer": "10.4.19",
     "axios": "^1.7.2",
     "csv-parser": "^3.0.0",
