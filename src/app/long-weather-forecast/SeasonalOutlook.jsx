@@ -1,16 +1,11 @@
-"use client"
+"use client";
 
 import React, { useState } from 'react';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import Wrapper from '../components/shared/Wrapper';
 
 const SeasonalOutlook = () => {
     const [year, setYear] = useState("");
     const [season, setSeason] = useState("");
-    const [showPDF, setShowPDF] = useState(false);
 
     const handleYearChange = (e) => {
         setYear(e.target.value);
@@ -21,11 +16,17 @@ const SeasonalOutlook = () => {
     };
 
     const handleDownload = () => {
-        setShowPDF(true);
+        if (year && season) {
+            const pdfUrl = '/path/to/your/pdf/document.pdf';  // Replace with the actual path to your PDF
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            // link.download = `Seasonal_Outlook_${year}_${season}.pdf`;  // Construct a file name based on the year and season
+            link.download = `rcc_outlook_NDJ2023.pdf`;
+            link.click();
+        } else {
+            alert("Please select both Year and Season.");
+        }
     };
-
-    // Create a new instance of the default layout plugin
-    const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
     return (
         <Wrapper>
@@ -46,18 +47,10 @@ const SeasonalOutlook = () => {
                                 className="rounded-lg font-[500] border-black border focus:outline-none py-2 px-2 bg-white text-[#181818] w-full"
                             >
                                 <option value="">Select Year</option>
-                                <option value="2013">2013</option>
-                                <option value="2014">2014</option>
-                                <option value="2015">2015</option>
-                                <option value="2016">2016</option>
-                                <option value="2017">2017</option>
-                                <option value="2018">2018</option>
-                                <option value="2019">2019</option>
-                                <option value="2020">2020</option>
-                                <option value="2021">2021</option>
-                                <option value="2022">2022</option>
-                                <option value="2023">2023</option>
-                                <option value="2024">2024</option>
+                                {[...Array(12)].map((_, i) => {
+                                    const yearOption = 2013 + i;
+                                    return <option key={yearOption} value={yearOption}>{yearOption}</option>;
+                                })}
                             </select>
                         </div>
                         <div>
@@ -70,18 +63,9 @@ const SeasonalOutlook = () => {
                                 className="rounded-lg font-[500] border-black border focus:outline-none py-2 px-2 bg-white text-[#181818] w-full"
                             >
                                 <option value="">Select Season</option>
-                                <option value="DJF">DJF</option>
-                                <option value="JFM">JFM</option>
-                                <option value="FMA">FMA</option>
-                                <option value="MAM">MAM</option>
-                                <option value="AMJ">AMJ</option>
-                                <option value="MJJ">MJJ</option>
-                                <option value="JJA">JJA</option>
-                                <option value="JAS">JAS</option>
-                                <option value="ASO">ASO</option>
-                                <option value="SON">SON</option>
-                                <option value="OND">OND</option>
-                                <option value="NDJ">NDJ</option>
+                                {["DJF", "JFM", "FMA", "MAM", "AMJ", "MJJ", "JJA", "JAS", "ASO", "SON", "OND", "NDJ"].map((seasonOption) => (
+                                    <option key={seasonOption} value={seasonOption}>{seasonOption}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
@@ -97,18 +81,6 @@ const SeasonalOutlook = () => {
                             Show Product
                         </button>
                     </div>
-                    {showPDF && (
-                        <div className="mt-10 w-full flex justify-center">
-                            <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.15.349/build/pdf.worker.min.js`}>
-                                <div style={{ height: '750px', width: '100%' }}>
-                                    <Viewer
-                                        fileUrl="/rcc_outlook_NDJ2023.pdf"
-                                        plugins={[defaultLayoutPluginInstance]}
-                                    />
-                                </div>
-                            </Worker>
-                        </div>
-                    )}
                 </div>
             </div>
         </Wrapper>
