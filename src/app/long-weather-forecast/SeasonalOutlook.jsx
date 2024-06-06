@@ -20,7 +20,8 @@ const SeasonalOutlook = () => {
             const pdfUrl = '/path/to/your/pdf/document.pdf';  // Replace with the actual path to your PDF
             const link = document.createElement('a');
             link.href = pdfUrl;
-            link.download = `Seasonal_Outlook_${year}_${season}.pdf`;  // Construct a file name based on the year and season
+            // link.download = `Seasonal_Outlook_${year}_${season}.pdf`;  // Construct a file name based on the year and season
+            link.download = `rcc_outlook_NDJ2023.pdf`;
             link.click();
         } else {
             alert("Please select both Year and Season.");
