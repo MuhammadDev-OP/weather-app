@@ -15,16 +15,26 @@ const SeasonalOutlook = () => {
         setSeason(e.target.value);
     };
 
-    const handleDownload = () => {
+    const downloadPdf = (docName) => {
+        // You can replace the dummy URLs with actual URLs to your Word documents
+        const docUrls = {
+            'ndj': '/rcc_outlook_NDJ2023.pdf',
+        };
+
+        // Get the URL based on the docName
+        const docUrl = docUrls[docName];
+
+        // Trigger the download
         if (year && season) {
-            const pdfUrl = '/path/to/your/pdf/document.pdf';  // Replace with the actual path to your PDF
+
             const link = document.createElement('a');
-            link.href = pdfUrl;
-            // link.download = `Seasonal_Outlook_${year}_${season}.pdf`;  // Construct a file name based on the year and season
-            link.download = `rcc_outlook_NDJ2023.pdf`;
+            link.href = docUrl;
+            link.download = `${docName}.pdf`;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         } else {
-            alert("Please select both Year and Season.");
+            alert("select year and season")
         }
     };
 
@@ -71,7 +81,7 @@ const SeasonalOutlook = () => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <button
-                            onClick={handleDownload}
+                            onClick={() => downloadPdf('ndj')}
                             className="py-3 mt-10 px-6 
                                     bg-blue-600
                                     text-white hover:bg-blue-500
