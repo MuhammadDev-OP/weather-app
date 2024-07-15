@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
-import Chart from "react-apexcharts";
+import 'zingchart/es6';
+import ZingChart from 'zingchart-react';
 import Papa from "papaparse";
 
 const LineChart = () => {
@@ -15,7 +16,7 @@ const LineChart = () => {
 
     const fetchCSVData = async () => {
         try {
-            const response = await fetch("/data/data.csv");
+            const response = await fetch("/data/Daily_Data_TM.csv");
             if (!response.ok) {
                 throw new Error("Network response was not ok");
             }
@@ -41,17 +42,14 @@ const LineChart = () => {
                         if (!acc[stationName]) {
                             acc[stationName] = [];
                         }
-                        acc[stationName].push({
-                            x: new Date(entry.DATE),
-                            y: parseFloat(entry.VALUE.replace(',', '.')) || 0, // Handle potential parsing errors
-                        });
+                        acc[stationName].push([new Date(entry.DATE).getTime(), parseFloat(entry.VALUE.replace(',', '.')) || 0]); // Handle potential parsing errors
                         return acc;
                     }, {});
 
                 // Create series data for each station
                 const seriesData = Object.keys(groupedData).map(stationName => ({
-                    name: stationName,
-                    data: groupedData[stationName],
+                    text: stationName,
+                    values: groupedData[stationName],
                 }));
 
                 setChartData({
@@ -62,73 +60,85 @@ const LineChart = () => {
     };
 
     const { series } = chartData;
-    const chartOptions = {
-        colors: ['#79e200', '#f39c12', '#8e44ad', '#e74c3c'], // Different colors for each station
-        theme: {
-            mode: "dark",
+    const chartConfig = {
+        type: "line",
+        title: {
+            text: "Temperature Data",
+            fontColor: "#000000",
         },
-        stroke: {
-            curve: "smooth",
-            width: 3, // Adjust line thickness
-        },
-        markers: {
-            size: 6, // Adjust marker size
-        },
-        chart: {
-            type: "line",
-            height: 750,
-            toolbar: {
-                show: true,
-                tools: {
-                    download: false, // Disable download tool
-                    selection: true, // Enable selection tool for zooming
-                    zoom: true, // Enable zooming tool
-                    zoomin: true,
-                    zoomout: true,
-                    pan: true, // Enable panning tool
-                    reset: true, // Enable reset tool to reset zoom level
-                },
-            },
-            zoom: {
-                enabled: true,
-            },
-            background: "black",
-        },
+        backgroundColor: "#ffffff",
         legend: {
-            show: true,
-        },
-        yaxis: {
-            title: {
-                text: "Temperature",
+            draggable: true,
+            borderWidth: "0px",
+            item: {
+                cursor: "hand",
+                fontColor: "#000000",
+            },
+            header: {
+                text: "Stations",
+                fontColor: "#000000",
+                backgroundColor: "#ffffff",
             },
         },
-        xaxis: {
-            type: "datetime",
-            labels: {
-                formatter: function (value) {
-                    return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                },
+        plot: {
+            aspect: "spline",
+            marker: {
+                backgroundColor: "#00aaff",
+                borderWidth: "2px",
+                borderColor: "#ffffff",
+            },
+        },
+        scaleX: {
+            transform: {
+                type: "date",
+                all: "%D %M %dd<br>%Y",
+            },
+            item: {
+                fontColor: "#000000",
+            },
+            zooming: true, // Enable zooming
+        },
+        scaleY: {
+            label: {
+                text: "Temperature",
+                fontColor: "#000000",
+            },
+            item: {
+                fontColor: "#000000",
+            },
+        },
+        crosshairX: {
+            lineColor: "#000000",
+            marker: {
+                borderColor: "#000000",
+                borderWidth: "1px",
+                size: "5px",
+            },
+            plotLabel: {
+                backgroundColor: "#000000",
+                borderRadius: "2px",
+                borderWidth: "2px",
+                multiple: true,
+                fontColor: "#ffffff",
             },
         },
         tooltip: {
-            shared: false,
-            y: {
-                formatter: (val) => `${val.toFixed(2)}`,
-            },
+            text: "%kt<br>%vv",
+            backgroundColor: "#000000",
+            borderRadius: "5px",
+            borderWidth: "2px",
+            fontColor: "#ffffff",
         },
+        preview: {
+            adjustLayout: true, // Enable preview area for zooming
+        },
+        series: series,
     };
 
     return (
-        <>
-            {typeof window !== 'undefined' && (
-                <Chart
-                    options={chartOptions}
-                    series={series}
-                    type="line"
-                    height={chartOptions.chart.height}
-                />
-            )}
-        </>
+        <div style={{ width: "100%", height: "750px" }}>
+            <ZingChart data={chartConfig} />
+        </div>
     );
 };
 

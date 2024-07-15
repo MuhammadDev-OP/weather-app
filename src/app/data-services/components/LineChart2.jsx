@@ -104,7 +104,8 @@ const LineChart2 = () => {
             },
             item: {
                 fontColor: "#000000"
-            }
+            },
+            zooming: true, // Enable zooming
         },
         crosshairX: {
             lineColor: "#000000",
@@ -127,6 +128,9 @@ const LineChart2 = () => {
             borderRadius: "5px",
             borderWidth: "2px",
             fontColor: "#ffffff"
+        },
+        preview: {
+            adjustLayout: true, // Enable preview area for zooming
         },
         series: series
     };

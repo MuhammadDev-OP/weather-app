@@ -1,7 +1,8 @@
-import Image from "next/image"
+
+
 const Hero = () => {
     return (
-        <div className="relative flex flex-col min-h-[70VH] items-center justify-center w-full bg-cover bg-center bg-no-repeat bg-blend-overlay bg-black/30" style={{ backgroundImage: 'url(/hero_image.jpg)' }}>
+        <div className="relative flex flex-col min-h-[50VH] items-center justify-center w-full bg-cover bg-center bg-no-repeat bg-blend-overlay bg-black/30" style={{ backgroundImage: 'url(/hero_image.jpg)' }}>
             <div className="mt-10 w-[300px] md:w-[700px] text-center">
                 <h1 className="text-center font-bold text-5xl text-white ">
                     MAROC Network RCC Node

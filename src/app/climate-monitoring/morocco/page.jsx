@@ -47,9 +47,9 @@ const Page = () => {
                     return;
                 }
 
-                const windText = valueWind ? `${valueWind.speedKilometersPerHour.toFixed(1)} km/h` : "No data";
-                const tempText = valueTemp ? `${valueTemp.value.toFixed(1)}°C` : "No data";
-                const rainText = valueRain ? `${valueRain.value.toFixed(1)} mm/h` : "No data";
+                const windText = valueWind ? `${Math.max(valueWind.speedKilometersPerHour, 0).toFixed(1)} km/h` : "No data";
+                const tempText = valueTemp ? `${Math.max(valueTemp.value, 0).toFixed(1)}°C` : "No data";
+                const rainText = valueRain ? `${Math.max(valueRain.value, 0).toFixed(1)} mm/h` : "No data";
 
                 pointerDataDivRef.current.innerText = `
                     Temperature: ${tempText}
