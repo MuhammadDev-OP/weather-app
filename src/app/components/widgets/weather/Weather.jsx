@@ -20,7 +20,6 @@ const Weather = () => {
     const [showWind, setShowWind] = useState(true);
 
     useEffect(() => {
-        // Set your MapTiler API key
         config.apiKey = "Ox6qYDB3T31KuaIOY5fX";
 
         // Create a new Map instance with the custom style for better visibility
